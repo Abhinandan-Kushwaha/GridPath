@@ -30,5 +30,4 @@ Yes, I found one whose cost is only 54 -
 
 ![loading](/grid2.png)
 
-Check out this link to find the correct solution-
-
+Check out this link to find the correct solution- https://abhinandan-kushwaha.github.io/GridPath/
