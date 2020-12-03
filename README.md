@@ -20,3 +20,15 @@ The most intuitive solution is to look at the cell below you and the cell right 
 
 Let us follow this strategy -
 
+![loading](/grid4.png)
+
+The cost of reaching the destination using this path is- 66
+
+Are there any better paths? 
+
+Yes, I found one whose cost is only 54 -
+
+![loading](/grid2.png)
+
+Check out this link to find the correct solution-
+
