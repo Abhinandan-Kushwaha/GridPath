@@ -1,0 +1,432 @@
+<html>
+
+<head>
+    <style>
+        #container {
+            display: flex;
+            flex: 1;
+            background-color: #eeeeee;
+            justify-content: center;
+        }
+
+        .header {
+            padding: 10px;
+            display: flex;
+            flex-direction: row;
+            background-color: #dddddd;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .myUl {
+            list-style-type: none;
+            flex-direction: column;
+        }
+
+        .box {
+            height: 60;
+            width: 80;
+            margin-right: -4;
+            margin-bottom: -1;
+            padding-top: 6;
+            padding-left: 16;
+            font-size: 14px;
+            color: black;
+            border-color: black;
+        }
+
+        .box::-webkit-outer-spin-button,
+        .box::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
+        .bigBox {
+            height: 60;
+            width: 100;
+            margin-right: -4;
+            margin-bottom: -1;
+            padding-top: 6;
+            font-size: 12px;
+            color: red;
+            border-color: black;
+        }
+
+        .inputBox {
+            height: 40;
+            width: 60;
+            font-size: 18px;
+            padding: 8;
+            margin: 5;
+            border-color: green;
+            border-radius: 10px;
+        }
+
+        .labelBox {
+            height: 40;
+            width: 140;
+            font-size: 20px;
+            color: brown;
+            margin-top: 10
+        }
+
+        .myButton {
+            padding-right: 10;
+            padding-left: 10;
+            padding-top: 6;
+            padding-bottom: 6;
+            border-width: 2;
+            border-color: #00ff00;
+            margin: 10;
+            background-color: #028702;
+            color: #ffffff;
+            font-size: 16;
+            border-radius: 10px;
+            height: 50px;
+        }
+
+        .myButton:hover {
+            border-color: #f73838;
+            background-color: #b80303;
+        }
+
+        .btnContainer {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-left: 40px;
+        }
+
+        .dropbtn {
+            padding-right: 10;
+            padding-left: 10;
+            padding-top: 6;
+            padding-bottom: 6;
+            border-width: 2;
+            border-color: #00ff00;
+            background-color: #028702;
+            color: #ffffff;
+            font-size: 16;
+            border-radius: 10px;
+            height: 50px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown:hover .dropbtn {
+            border-color: #f73838;
+            background-color: #b80303;
+        }
+    </style>
+    <script>
+        var m, n, ar = [], cost = [], speed = 600, bigInter;
+        function onSubmit() {
+            m = document.getElementById("rows").value;
+            n = document.getElementById("columns").value;
+            if ((m + "").length === 0 || (n + "").length === 0)
+                alert('Please enter both rows and columns');
+            ar = []; cost = [];
+            if (n <= 8) {
+                document.getElementById("midBody").setAttribute("style", "display: flex;flex-direction: row;")
+            }
+            else {
+                document.getElementById("matrix").setAttribute("style", "margin-bottom:20px;")
+            }
+            var bottom = document.getElementById("bottomContainer");
+            bottom.innerHTML = "";
+            document.getElementById("solutionMatrix").innerHTML = "";
+            btn = document.createElement("button");
+            btn.innerHTML = "Done";
+            btn.setAttribute("class", "myButton");
+            btn.setAttribute("onclick", "compute()");
+            bottom.appendChild(btn);
+
+            btn = document.createElement("button");
+            btn.innerHTML = "Random Fill";
+            btn.setAttribute("class", "myButton");
+            btn.setAttribute("onclick", "scramble()");
+            bottom.appendChild(btn);
+
+            document.getElementById("drops").style.display = "block";
+            document.getElementById("indicator").style.display = "block";
+            document.getElementById("footer").style.display = "block";
+
+            var matrix = document.getElementById("matrix");
+            matrix.innerHTML = "";
+            var i, j, ul, code;
+            for (i = 0; i < m; i++) {
+                ul = document.createElement("div");
+                ul.setAttribute("class", "myUl");
+                code = "";
+                for (j = 0; j < n; j++) {
+                    ids = i * n + j;
+                    code += "<input type=\"number\" class=\"box\" id=\"" + ids + "\"/>";
+                }
+                ul.innerHTML = code;
+                matrix.appendChild(ul);
+            }
+        }
+        function fillMatrices() {
+            var i, j, ids, x, arr, cst;
+            for (i = 0; i < m; i++) {
+                arr = [];
+                for (j = 0; j < n; j++) {
+                    ids = (i * n + j) + "";
+                    x = parseInt(document.getElementById(ids).value);
+                    arr.push(x);
+                }
+                ar.push(arr);
+            }
+
+            for (i = 0; i < m; i++) {
+                cst = [];
+                for (j = 0; j < n; j++) {
+                    if (i == 0 && j == 0)
+                        cst.push(ar[i][j]);
+                    else if (i == 0)
+                        cst.push(ar[i][j] + cst[j - 1]);
+                    else if (j == 0)
+                        cst.push(ar[i][j] + cost[i - 1][j]);
+                    else
+                        cst.push(ar[i][j] + Math.min(cost[i - 1][j], cst[j - 1]));
+                }
+
+                cost.push(cst);
+            }
+
+        }
+        function compute() {
+            document.getElementById("bottomContainer").innerHTML = "";
+            document.getElementById("footer").innerHTML = "";
+            var i, j, ids, x, arr, cst;
+
+            fillMatrices();
+
+            var matrix = document.getElementById("solutionMatrix");
+            matrix.innerHTML = "";
+            var ul, code, value, idd;
+            for (i = 0; i < m; i++) {
+                ul = document.createElement("div");
+                ul.setAttribute("class", "myUl");
+                code = "";
+                for (j = 0; j < n; j++) {
+                    idd = (i * n + j) + "c"
+                    code += "<input readonly type=\"text\" class=\"bigBox\" id=\"" + idd + "\" />";
+                }
+                ul.innerHTML = code;
+                matrix.appendChild(ul);
+            }
+
+            var ctr = 0, box;
+            bigInter = window.setInterval(function () {
+                i = Math.floor(ctr / n);
+                j = Math.floor(ctr % n);
+                ids = ctr + "c";
+                box = document.getElementById(ids);
+
+                if (i == 0 && j == 0) {
+                    value = cost[i][j];
+                }
+                else if (i == 0) {
+                    value = cost[i][j - 1] + "+" + ar[i][j] + "=" + cost[i][j];
+                    document.getElementById((i * n + j - 1) + "c").setAttribute("value", cost[i][j - 1]);
+                    document.getElementById((i * n + j - 1) + "c").setAttribute("style", "color:blue;font-size:16px;padding-left:12px");
+                }
+                else if (j == 0) {
+                    value = cost[i - 1][j] + "+" + ar[i][j] + "=" + cost[i][j];
+                    document.getElementById(((i - 1) * n + j) + "c").setAttribute("value", cost[i - 1][j]);
+                    document.getElementById(((i - 1) * n + j) + "c").setAttribute("style", "color:blue;font-size:16px;padding-left:12px");
+                }
+                else {
+                    value = "m(" + cost[i - 1][j] + "," + cost[i][j - 1] + ")+" + ar[i][j] + "=" + cost[i][j];
+                    if (cost[i - 1][j] < cost[i][j - 1]) {
+                        document.getElementById(((i - 1) * n + j) + "c").setAttribute("value", cost[i - 1][j]);
+                        document.getElementById(((i - 1) * n + j) + "c").setAttribute("style", "color:blue;font-size:16px;padding-left:12px");
+                    }
+                    else;
+                    {
+                        document.getElementById(((i * n) + j - 1) + "c").setAttribute("value", cost[i][j - 1]);
+                        document.getElementById(((i * n) + j - 1) + "c").setAttribute("style", "color:blue;font-size:16px;padding-left:12px");
+                    }
+                }
+
+                if (i != 0 && j == 0) {
+                    document.getElementById((ctr - 1) + "c").setAttribute("value", cost[i - 1][n - 1]);
+                    document.getElementById((ctr - 1) + "c").setAttribute("style", "color:blue;font-size:16px;padding-left:12px");
+                }
+
+                box.setAttribute("value", value);
+                ctr++;
+                if (ctr === m * n) {
+                    document.getElementById((ctr - 1) + "c").setAttribute("value", cost[m - 1][n - 1]);
+                    document.getElementById((ctr - 1) + "c").setAttribute("style", "color:blue;font-size:16px;padding-left:12px");
+                    clearInterval(bigInter);
+                    console.log('cleared');
+                    drawPath();
+                }
+            }, speed);
+        }
+        function drawPath() {
+            var i, j, k, ids, box, cr, cc;
+            var pathArray = [], counter = 0;
+            pathArray.push((m * n - 1) + "c");
+            counter++;
+            cr = m - 1; cc = n - 1;
+            for (; ;) {
+                if (cr == 0) {
+                    for (; cc >= 0; cc--) {
+                        pathArray.push(cc + "c");
+                        console.log(pathArray);
+                        counter++;
+                    }
+                    break;
+                }
+
+                else if (cc == 0) {
+                    for (; cr >= 0; cr--) {
+                        pathArray.push((cr * n) + "c");
+                        console.log(pathArray);
+                        counter++;
+                    }
+                    break;
+                }
+
+
+                else if (cost[cr - 1][cc] < cost[cr][cc - 1]) {
+                    pathArray.push(((cr - 1) * n + cc) + "c");
+                    console.log(pathArray);
+                    counter++;
+                    cr--;
+                }
+                else {
+                    pathArray.push(((cr * n) + cc - 1) + "c");
+                    console.log(pathArray);
+                    counter++;
+                    cc--;
+                }
+            }
+
+            pathArray.reverse();
+
+            var myInter = window.setInterval(function () {
+
+                if (counter == 0) {
+                    clearInterval(myInter);
+                    console.log('cleared');
+                }
+
+                ids = pathArray[counter--];
+                box = document.getElementById(ids);
+
+                box.setAttribute("style", "background-color:#888888;color:white;font-size:16px;padding-left:12px");
+
+            }, speed);
+
+
+        }
+        function scramble() {
+            var i, j;
+            for (i = 0; i < m; i++) {
+                for (j = 0; j < n; j++) {
+                    document.getElementById(i * n + j).setAttribute("value", Math.round(Math.random() * 10));
+                }
+            }
+        }
+        function setSpeed(val) {
+            if (val == 1)
+                document.getElementById("indicator").innerHTML = "Slow";
+            else if (val == 2)
+                document.getElementById("indicator").innerHTML = "Medium";
+            else if (val == 3)
+                document.getElementById("indicator").innerHTML = "Fast";
+
+
+            speed = 1810 - val * 600;
+            if (bigInter) {
+                m = document.getElementById("rows").value;
+                n = document.getElementById("columns").value;
+                ar = []; cost = [];
+                clearInterval(bigInter);
+                compute();
+            }
+        }        
+    </script>
+</head>
+
+<body id="container">
+    <div>
+        <div class="header">
+            <div>
+                <div class="labelBox">
+                    No of rows :
+                </div>
+                <div class="labelBox">
+                    No of columns :
+                </div>
+            </div>
+            <div>
+                <div>
+                    <input type="number" id="rows" class="inputBox" min="1" max="100" autofocus />
+                </div>
+                <div>
+                    <input type="number" id="columns" class="inputBox" min="1" max="16" />
+                </div>
+            </div>
+            <div class="btnContainer">
+                <button onclick="onSubmit()" class="myButton">Submit</button>
+            </div>
+            <div class="btnContainer">
+                <div>
+                    <p hidden="true" id="indicator" style="margin-top:-15px;margin-bottom:-20px; font-size:12px">Medium
+                    </p>
+                </div>
+                <div class="dropdown">
+                    <button class="dropbtn" id="drops" hidden="true">Speed</button>
+                    <div class="dropdown-content">
+                        <a onclick="setSpeed(1)">Slow</a>
+                        <a onclick="setSpeed(2)">Medium</a>
+                        <a onclick="setSpeed(3)">Fast</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="midBody">
+            <div id="matrix"></div>
+            <div id="solutionMatrix" style="margin-left: 20"></div>
+        </div>
+        <div id="bottomContainer">
+        </div>
+
+        <p id="footer" hidden="true">You can cllick on <span style="color:red;"><b>Random Fill</b></span> button if you
+            don't want to enter the values in the matrix manually</p>
+    </div>
+</body>
+
+</html>
